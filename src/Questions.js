@@ -8,31 +8,41 @@ class Questions extends React.Component {
         correctAnswer: '',
         count: 0,
         options: [],
+        rightAnswers: [],
         nextQuestion: false,
         correctCount: 0,
-        selected: false
+        notSelected: false
     }
-
 
 
     constructor(props) {
         super(props);
       }
 
-      setQuestion = () => {        
+      setQuestion = () => {     
          const questions = this.props.quizData.results[this.state.count] || '';
-         this.setOptions(questions);
-         if(this.state.count !== this.props.quizData.results.length - 1) {
+         const btnOptions =  document.querySelectorAll('.btn-option');
+         btnOptions.length !== 0 && btnOptions.forEach(el =>  el.classList.remove('bg-green-400', 'focus:text-white', 'selected'));
+         if((this.state.count <= 0 || this.state.selected) && this.state.count !== this.props.quizData.results.length - 1) {
             this.setState((currentState) => ({
                 questions,
                 count: currentState.count + 1,
                 selected: false
             }))
+            this.setOptions(questions);
+         } else {
+            return this.state.count >= 1 ? this.setState({notSelected: true}) : '';
          }
-         return false
+      }
+
+      removeSelection = (e) => {
+            console.log(e);
       }
 
       countCheck = (e) => {
+        this.setState({notSelected: false});  
+        this.state.selected = true;  
+        const correctAnswers = [];
         const correctAnswer = this.props.quizData.results[this.state.count - 1].correct_answer;
         const btnOptions = Array.prototype.slice.call(e.target.parentElement.querySelectorAll('.btn-option'));
         const notSelectedOptions = btnOptions.filter(element => {
@@ -45,12 +55,14 @@ class Questions extends React.Component {
         const answer = e.target.querySelector('.option-name').innerHTML.replace(/&nbsp;/g,' '). trim();
         if(answer === correctAnswer) {
             this.setState((currState) => ({
-                correctCount: currState.correctCount + 1,
-                selected: !currState.selected
+                rightAnswers: [...currState.rightAnswers, correctAnswer],
+                correctCount: currState.rightAnswers.includes(correctAnswer) ? currState.correctCount : currState.correctCount + 1,
             }))
+            console.log(this.state.rightAnswers);
         }
         return false;
       }
+
 
       removeActiveClass = (elements) => {
         elements.forEach((el) => {
@@ -72,7 +84,7 @@ class Questions extends React.Component {
         return (
             <div>
                 <h2 className="font-mono text-left leading-6">Spoted: {this.state.correctCount} out of {this.props.quizData.results.length}</h2>
-                <div className="flex justify-center">
+                <div className="flex justify-center mb-3">
                     <div className="max-w-lg rounded overflow-hidden shadow-lg p-8">
                         <div className="px-6 py-4">
                             <div className="flex font-bold text-xl mb-2 justify-center items-center">
@@ -80,13 +92,13 @@ class Questions extends React.Component {
                                 <p className="font-mono text-left leading-6">{this.state.questions.question}</p>
                             </div>
                         </div>
-                        <Options countCheck={this.countCheck} options={this.state.options}></Options>
+                        <Options countCheck={this.countCheck} options={this.state.options} removeSelection={this.removeSelection}></Options>
                     </div>
                 </div>
-               
-                <div class="inline-flex py-3">
+                {this.state.notSelected ? (<h2 className="font-mono text-red-600 leading-6 py-4">Please Select an Option</h2>) : ''}
+                <div class="inline-flex">
                     { this.state.count !== 0 ?
-                    <button className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-l">
+                    <button className={`bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-l ${this.state.count > 1 ? 'opacity-50 cursor-not-allowed' : ''}`}>
                         Prev
                     </button> : '' }
                     <button className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-r" onClick={this.setQuestion}>

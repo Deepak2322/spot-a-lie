@@ -2,16 +2,15 @@ import React from 'react';
 import Zoom from 'react-reveal/Zoom';
 
 class Options extends React.Component {
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
+        this.myRef = React.createRef();
+        props.removeSelection();
     }
-
 
     state = {
         count: 0
     }
-
-
 
     render() {
         const { options } = this.props;
@@ -20,7 +19,7 @@ class Options extends React.Component {
                 { options.length > 0 && options.map((item, index) => {
                     return (
                         <Zoom>
-                        <button key={index} className={"bg-transparent  font-mono hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded text-left btn-option"} onClick={(e) => this.props.countCheck(e)}>
+                        <button key={index} className={"bg-transparent  font-mono hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded text-left btn-option"}  onClick={(e) => this.props.countCheck(e)}>
                             <div className="flex">
                             {options.length > 2 ? (<span className="">{index + 1}.</span>) : ''}
                             <span className="option-name">&nbsp;&nbsp;{item}</span>
