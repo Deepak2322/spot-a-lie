@@ -2,15 +2,7 @@ import React from 'react';
 import Zoom from 'react-reveal/Zoom';
 
 class Options extends React.Component {
-    constructor(props) {
-        super(props);
-        this.myRef = React.createRef();
-        props.removeSelection();
-    }
 
-    state = {
-        count: 0
-    }
 
     render() {
         const { options } = this.props;

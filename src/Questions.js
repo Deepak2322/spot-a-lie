@@ -1,6 +1,8 @@
 import React from 'react';
 import Options from './Options';
-
+import ScoreCard from './ScoreCard';
+import Fade from 'react-reveal/Fade';
+import Swing from 'react-reveal/Swing';
 class Questions extends React.Component {
 
     state = {
@@ -11,7 +13,8 @@ class Questions extends React.Component {
         rightAnswers: [],
         nextQuestion: false,
         correctCount: 0,
-        notSelected: false
+        notSelected: false,
+        showScoreCard: false
     }
 
 
@@ -31,18 +34,24 @@ class Questions extends React.Component {
             }))
             this.setOptions(questions);
          } else {
-            return this.state.count >= 1 ? this.setState({notSelected: true}) : '';
+            return this.state.count >= 1 && this.state.count === 9 ? this.showScore() : this.setState({notSelected: true});
          }
       }
 
-      removeSelection = (e) => {
-            console.log(e);
-      }
+      shuffle = (a) => {
+        var j, x, i;
+        for (i = a.length - 1; i > 0; i--) {
+            j = Math.floor(Math.random() * (i + 1));
+            x = a[i];
+            a[i] = a[j];
+            a[j] = x;
+        }
+        return a;
+    }
 
       countCheck = (e) => {
         this.setState({notSelected: false});  
         this.state.selected = true;  
-        const correctAnswers = [];
         const correctAnswer = this.props.quizData.results[this.state.count - 1].correct_answer;
         const btnOptions = Array.prototype.slice.call(e.target.parentElement.querySelectorAll('.btn-option'));
         const notSelectedOptions = btnOptions.filter(element => {
@@ -58,11 +67,13 @@ class Questions extends React.Component {
                 rightAnswers: [...currState.rightAnswers, correctAnswer],
                 correctCount: currState.rightAnswers.includes(correctAnswer) ? currState.correctCount : currState.correctCount + 1,
             }))
-            console.log(this.state.rightAnswers);
         }
         return false;
       }
 
+      showScore = () => {
+         this.setState({showScoreCard: true})
+      }
 
       removeActiveClass = (elements) => {
         elements.forEach((el) => {
@@ -74,7 +85,7 @@ class Questions extends React.Component {
         const incorrectAnswers = questionData.incorrect_answers;
         const allOptions =  [...incorrectAnswers, questionData.correct_answer]
         this.setState({
-            options: allOptions
+            options: this.shuffle(allOptions)
         })
       }
 
@@ -82,8 +93,10 @@ class Questions extends React.Component {
        const  { count } = this.state.count;
 
         return (
-            <div>
-                <h2 className="font-mono text-left leading-6">Spoted: {this.state.correctCount} out of {this.props.quizData.results.length}</h2>
+            <div class="flex justify-center"> { this.state.showScoreCard ?  <Fade top><Swing><ScoreCard count={this.state.correctCount} totalCount={this.props.quizData.results.length}></ScoreCard></Swing></Fade> : 
+                (
+                <div>
+                   <h1>{this.state.correctCount}</h1>
                 <div className="flex justify-center mb-3">
                     <div className="max-w-lg rounded overflow-hidden shadow-lg p-8">
                         <div className="px-6 py-4">
@@ -102,9 +115,10 @@ class Questions extends React.Component {
                         Prev
                     </button> : '' }
                     <button className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-r" onClick={this.setQuestion}>
-                        Next
+                    { this.state.count === 0 ? 'Start' : 'Next'}
                     </button>
-                </div>
+                </div></div> ) 
+                }
             </div>
         )
     }
